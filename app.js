@@ -1,6 +1,11 @@
 const express = require('express')
-
-//创建服务器实例
+const joi = require('@hapi/joi')
+const userRouter = require('./router/user')
+const userInfoRouter = require('./router/userInfo')
+    //解析token
+const expressJWT = require('express-jwt')
+const { jwtSecretKey } = require('./config')
+    //创建服务器实例
 const app = express()
 
 //cors跨域配置
@@ -21,18 +26,26 @@ app.use(function(req, res, next) {
     next()
 })
 
-// 全局错误中间件，捕获验证失败的错误并响应给客户端
-const joi = require('@hapi/joi')
+//解析token
+app.use(expressJWT({ secret: jwtSecretKey }).unless({ path: [/^\/api\//] }))
+
+//注册用户路由模块
+app.use('/api', userRouter)
+
+//注册个人中心路由模块
+app.use('/my', userInfoRouter)
+
+//全局错误中间件， 捕获验证失败的错误并响应给客户端
 app.use(function(err, req, res, next) {
     // 数据验证失败
     if (err instanceof joi.ValidationError) return res.cc(err)
-        // 未知错误
+
+    //token验证失败
+    if (err.name == 'UnauthorizedError') return res.cc('身份验证失败')
+
+    // 未知错误
     res.cc(err)
 })
-
-//导入并注册用户路由模块
-const userRouter = require('./router/user')
-app.use('/api', userRouter)
 
 //监听
 app.listen(7777, function() {
