@@ -1,7 +1,10 @@
 const express = require('express')
 const joi = require('@hapi/joi')
+    // 导入各路由模块
 const userRouter = require('./router/user')
 const userInfoRouter = require('./router/userInfo')
+const artCateRouter = require('./router/artCate')
+const articleRouter = require('./router/article')
     //解析token
 const expressJWT = require('express-jwt')
 const { jwtSecretKey } = require('./config')
@@ -34,6 +37,15 @@ app.use('/api', userRouter)
 
 //注册个人中心路由模块
 app.use('/my', userInfoRouter)
+
+//注册文章分类模块
+app.use('/my/article', artCateRouter)
+
+//注册文章模块
+app.use('/my/article', articleRouter)
+
+//托管静态资源
+app.use('/uploads', express.static('./uploads'))
 
 //全局错误中间件， 捕获验证失败的错误并响应给客户端
 app.use(function(err, req, res, next) {
