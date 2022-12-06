@@ -19,7 +19,7 @@ exports.addArticle = (req, res) => {
         if (err) res.cc(err)
         if (results.affectedRows !== 1) return res.cc('发布文章失败！')
         res.send({
-            sattus: 0,
+            status: 0,
             message: '发布文章成功'
         })
     })
